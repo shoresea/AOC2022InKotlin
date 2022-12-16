@@ -2,8 +2,8 @@ fun main() {
     fun part1(inputs: List<String>): Int {
         var max = 0
         var sum = 0
-        for(input in inputs){
-            if(input == "") {
+        for (input in inputs) {
+            if (input == "") {
                 max = maxOf(max, sum)
                 sum = 0
             } else {
@@ -16,7 +16,7 @@ fun main() {
     fun part2(inputs: List<String>): Int {
         val sums = ArrayList<Int>()
         var sum = 0
-        for(input in inputs) {
+        for (input in inputs) {
             if (input == "") {
                 sums.add(sum)
                 sum = 0
@@ -28,8 +28,8 @@ fun main() {
     }
 
     // test if implementation meets criteria from the description, like:
-//    val testInput = readInput("Day01_test")
-//    check(part1(testInput) == 1)
+    //    val testInput = readInput("Day01_test")
+    //    check(part1(testInput) == 1)
 
     val input = readInput("Day01")
     part1(input).println()
