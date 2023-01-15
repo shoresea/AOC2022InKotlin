@@ -1,24 +1,13 @@
+import Command.Instruction.addx
+import Command.Instruction.noop
+
 fun main() {
 
-    fun process(command: String, value: Int?, cpu: CPU) {
-        when (command) {
-            "noop" -> {
-                cpu.completeCycle()
-            }
-            "addx" -> {
-                repeat(2) {
-                    cpu.completeCycle()
-                }
-                cpu.addValue(value!!)
-            }
-        }
-    }
-
     fun part1(inputs: List<String>): Int {
-        val cpu = CPU(0, 1, 0)
+        val cpu = CPU()
         for (input in inputs) {
-            val (command, value) = input.split(" ").let { it[0] to (if (it.size == 1) null else it[1].toInt()) }
-            process(command, value, cpu)
+            val command = Command.parseFrom(input)
+            cpu.process(command)
         }
         return cpu.strength()
     }
@@ -32,24 +21,59 @@ fun main() {
     part2(input).println()
 }
 
-data class CPU(private var cycle: Int, private var X: Int, private var strength: Int) {
+data class Command(val instruction: Instruction, val value: Int?) {
 
-    fun completeCycle() {
-        cycle++
-        updateStrength()
+    enum class Instruction {
+        addx,
+        noop
+    }
+
+    companion object {
+        fun parseFrom(input: String): Command = input.split(" ").let {
+            Command(
+                instruction = Instruction.valueOf(it[0]),
+                value = if (it.size == 1) null else it[1].toInt(),
+            )
+        }
+    }
+}
+
+data class CPU(
+    private var cycle: Int = 0,
+    private var X: Int = 1,
+    private var strength: Int = 0
+) {
+
+    fun process(command: Command) {
+        when (command.instruction) {
+            noop -> {
+                completeCycle(1)
+            }
+            addx -> {
+                completeCycle(2)
+                addValue(command.value!!)
+            }
+        }
+    }
+
+    private fun completeCycle(times: Int = 1) {
+        repeat(times) {
+            cycle++
+            updateStrength()
+        }
     }
 
     private fun updateStrength() {
-        val currentStrength = when (cycle) {
+        val additionalStrength = when (cycle) {
             20, 60, 100, 140, 180, 220 -> {
                 cycle * X
             }
             else -> 0
         }
-        strength += currentStrength
+        strength += additionalStrength
     }
 
-    fun addValue(value: Int) {
+    private fun addValue(value: Int) {
         X += value
     }
 
