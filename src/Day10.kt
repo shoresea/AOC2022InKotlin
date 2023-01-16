@@ -12,8 +12,13 @@ fun main() {
         return cpu.strength()
     }
 
-    fun part2(inputs: List<String>): Int {
-        return 0
+    fun part2(inputs: List<String>): String {
+        val cpu = CPU()
+        for (input in inputs) {
+            val command = Command.parseFrom(input)
+            cpu.process(command)
+        }
+        return cpu.CRT()
     }
 
     val input = readInput("Day10")
@@ -41,7 +46,8 @@ data class Command(val instruction: Instruction, val value: Int?) {
 data class CPU(
     private var cycle: Int = 0,
     private var X: Int = 1,
-    private var strength: Int = 0
+    private var strength: Int = 0,
+    private var crt: MutableList<Char> = MutableList(240) { '.' },
 ) {
 
     fun process(command: Command) {
@@ -58,10 +64,18 @@ data class CPU(
 
     private fun completeCycle(times: Int = 1) {
         repeat(times) {
+            drawOnCrt()
             cycle++
             updateStrength()
         }
     }
+
+    private fun drawOnCrt() {
+        if (doesSpriteCollidesWithCRTCycle())
+            crt[cycle] = '#'
+    }
+
+    private fun doesSpriteCollidesWithCRTCycle(): Boolean = ((X - 1)..(X + 1)).contains(cycle % 40)
 
     private fun updateStrength() {
         val additionalStrength = when (cycle) {
@@ -78,4 +92,10 @@ data class CPU(
     }
 
     fun strength() = strength
+
+    fun CRT() = (0..5).joinToString("\n") {
+        val start = it * 40
+        val end = (it + 1) * 40
+        crt.subList(start, end).joinToString(" ")
+    }
 }
